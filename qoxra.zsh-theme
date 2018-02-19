@@ -20,8 +20,8 @@
 # \e[2K => clear everything on the current line
 
 
-# if root RED else WHITE
-PROMPT="%(!.%{${fg[red]}%}%n.%{${fg[white]}%}%n)%{${reset_color}%}"
+# if root RED else YELLOW
+PROMPT="%(!.%{${fg[red]}%}%n.%{${fg[yellow]}%}%n)%{${reset_color}%}"
 PROMPT+=" at "
 # hostname in GREEN
 PROMPT+="%{${fg[green]}%}%m%{${reset_color}%}"
