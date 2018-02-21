@@ -20,13 +20,26 @@
 # \e[2K => clear everything on the current line
 
 
-# if root RED else YELLOW
-PROMPT="%(!.%{${fg[red]}%}%n.%{${fg[yellow]}%}%n)%{${reset_color}%}"
-PROMPT+=" at "
-# hostname in GREEN
-PROMPT+="%{${fg[green]}%}%m%{${reset_color}%}"
-PROMPT+=" in "
-# pwd in BLUE and only show last 3 dirs
-PROMPT+="%{${fg[blue]}%}%3~%{${reset_color}%}"
-PROMPT+=" » %{${reset_color}%}"
+# For the git prompt, use a white @ and blue text for the branch name
+ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[white]%}git:%{$fg[blue]%}"
 
+# Close it all off by resetting the color and styles.
+ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
+
+# Do nothing if the branch is clean (no changes).
+ZSH_THEME_GIT_PROMPT_CLEAN=""
+
+# Add a red ✗ if this branch is dirty.
+ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[red]%}✗"
+
+# if root RED else YELLOW
+QOXRA_USER="%(!.%{${fg[red]}%}%n.%{${fg[yellow]}%}%n)%{${reset_color}%}"
+
+# hostname in GREEN
+QOXRA_HOST="%{${fg[green]}%}%m%{${reset_color}%}"
+
+# pwd in BLUE and only show last 3 dirs
+QOXRA_DIR="%{${fg[blue]}%}%3~%{${reset_color}%}"
+
+# Put 'em all together
+PROMPT="${QOXRA_USER} at ${QOXRA_HOST} in ${QOXRA_DIR} » %{${reset_color}%}"
