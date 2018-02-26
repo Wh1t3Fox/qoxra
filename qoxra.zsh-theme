@@ -19,27 +19,83 @@
 # \e[K  => clears everything after the cursor on the current line
 # \e[2K => clear everything on the current line
 
+prompt_qoxra_git(){
+    is_dirty(){
+        test -n "$(git status --porcelain --ignore-submodules)"
+    }
 
-# For the git prompt, use a white @ and blue text for the branch name
-ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[white]%}git:%{$fg[blue]%}"
+    ref="$vcs_info_msg_0_"
+    if [[ -n "$ref" ]]; then
+        if is_dirty; then
+            ref="${ref}%{$fg[red]%}✗"
+        else
+            ref="${ref}%{$fg[green]%}✔ "
+        fi
 
-# Close it all off by resetting the color and styles.
-ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
+        if [[ "${ref/.../}" == "$ref" ]]; then
+            # Branch
+            ref="\ue0a0 $ref"
+        else
+            # Detached
+            ref="\u27a6 ${ref/.../}"
+        fi
+    print -n "%{$fg[white]%}$ref "
+fi
+}
 
-# Do nothing if the branch is clean (no changes).
-ZSH_THEME_GIT_PROMPT_CLEAN=""
+prompt_qoxra_virtualenv(){
+    # python logo
+    print -Pn "\ue606 "
+}
 
-# Add a red ✗ if this branch is dirty.
-ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[red]%}✗"
+prompt_qoxra_dir(){
 
-# if root RED else YELLOW
-QOXRA_USER="%(!.%{${fg[red]}%}%n.%{${fg[yellow]}%}%n)%{${reset_color}%}"
+    # pwd in BLUE and only show last 3 dirs
+    prompt_qoxra_basedir="%{${fg[blue]}%}%3~ "
+    
+    # Are we in a virtenv?
+    if [[ -n $VIRTUAL_ENV ]]; then
+      prompt_qoxra_basedir+="$(prompt_qoxra_virtualenv)"  
+    fi
+    
+    # Is this a git proj?
+    #
+    prompt_qoxra_basedir+="$(prompt_qoxra_git)"
 
-# hostname in GREEN
-QOXRA_HOST="%{${fg[green]}%}%m%{${reset_color}%}"
+    prompt_qoxra_basedir+="%{${reset_color}%}"
+    print $prompt_qoxra_basedir
+}
 
-# pwd in BLUE and only show last 3 dirs
-QOXRA_DIR="%{${fg[blue]}%}%3~%{${reset_color}%}"
+prompt_qoxra_precmd() {
+    vcs_info
 
-# Put 'em all together
-PROMPT="${QOXRA_USER} at ${QOXRA_HOST} in ${QOXRA_DIR} » %{${reset_color}%}"
+    # if root RED else YELLOW
+    prompt_qoxra_username="%(!.%{${fg[red]}%}%n.%{${fg[yellow]}%}%n)%{${reset_color}%}"
+
+    # hostname in GREEN
+    prompt_qoxra_hostname="%{${fg[green]}%}%m%{${reset_color}%}"
+
+
+    PROMPT="${prompt_qoxra_username} at ${prompt_qoxra_hostname} in $(prompt_qoxra_dir)» %{${reset_color}%}"
+}
+
+prompt_qoxra_setup() {
+
+    export PROMPT_EOL_MARK=''
+    export VIRTUAL_ENV_DISABLE_PROMPT=1
+    
+    prompt_opts=(subst percent)
+
+
+    autoload -Uz add-zsh-hook
+    autoload -Uz vcs_info
+
+    add-zsh-hook precmd prompt_qoxra_precmd
+    
+    zstyle ':vcs_info:*' enable git
+    zstyle ':vcs_info:*' check-for-changes false
+    zstyle ':vcs_info:git*' formats '%b'
+    zstyle ':vcs_info:git*' actionformats '%b (%a)'
+}
+
+prompt_qoxra_setup "$@"
