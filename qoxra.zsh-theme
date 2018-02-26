@@ -29,7 +29,7 @@ prompt_qoxra_git(){
         if is_dirty; then
             ref="${ref}%{$fg[red]%}✗"
         else
-            ref="${ref}%{$fg[green]%}✔ "
+            ref="${ref}%{$fg[green]%}✔"
         fi
 
         if [[ "${ref/.../}" == "$ref" ]]; then
