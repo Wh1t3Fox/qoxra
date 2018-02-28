@@ -93,7 +93,7 @@ prompt_qoxra_setup() {
     add-zsh-hook precmd prompt_qoxra_precmd
     
     zstyle ':vcs_info:*' enable git
-    zstyle ':vcs_info:*' check-for-changes false
+    zstyle ':vcs_info:*' check-for-changes true
     zstyle ':vcs_info:git*' formats '%b'
     zstyle ':vcs_info:git*' actionformats '%b (%a)'
 }
