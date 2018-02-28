@@ -60,7 +60,8 @@ prompt_qoxra_dir(){
     
     # Is this a git proj?
     #
-    prompt_qoxra_basedir+="$(prompt_qoxra_git)"
+    #prompt_qoxra_basedir+="$(prompt_qoxra_git)"
+    prompt_qoxra_basedir+="${vcs_info_msg_0_}"
 
     prompt_qoxra_basedir+="%{${reset_color}%}"
     print $prompt_qoxra_basedir
@@ -92,10 +93,9 @@ prompt_qoxra_setup() {
 
     add-zsh-hook precmd prompt_qoxra_precmd
     
-    zstyle ':vcs_info:*' enable git
+    zstyle ':vcs_info:*' enable git svn hg
     zstyle ':vcs_info:*' check-for-changes true
-    zstyle ':vcs_info:git*' formats '%b'
-    zstyle ':vcs_info:git*' actionformats '%b (%a)'
+    zstyle ':vcs_info:git*' formats "%{$fg[white]%}%s:%b %m%u%c %{${reset_color}%}"
 }
 
 prompt_qoxra_setup "$@"
