@@ -19,6 +19,50 @@
 # \e[K  => clears everything after the cursor on the current line
 # \e[2K => clear everything on the current line
 
+function +vi-git-untracked() {
+    if [[ $(git rev-parse --is-inside-work-tree 2> /dev/null) == 'true' ]] && \
+        git status --porcelain | grep '??' &> /dev/null ; then
+        # This will show the marker if there are any untracked files in repo.
+        # If instead you want to show the marker only if there are untracked
+        # files in $PWD, use:
+        #[[ -n $(git ls-files --others --exclude-standard) ]] ; then
+        hook_com[staged]+='T'
+    fi
+}
+
+function +vi-git-st() {
+    local ahead behind
+    local -a gitstatus
+
+    # for git prior to 1.7
+    # ahead=$(git rev-list origin/${hook_com[branch]}..HEAD | wc -l)
+    ahead=$(git rev-list ${hook_com[branch]}@{upstream}..HEAD 2>/dev/null | wc -l)
+    (( $ahead )) && gitstatus+=( "+${ahead}" )
+
+    # for git prior to 1.7
+    # behind=$(git rev-list HEAD..origin/${hook_com[branch]} | wc -l)
+    behind=$(git rev-list HEAD..${hook_com[branch]}@{upstream} 2>/dev/null | wc -l)
+    (( $behind )) && gitstatus+=( "-${behind}" )
+
+    hook_com[misc]+=${(j:/:)gitstatus}
+}
+
+function +vi-git-remotebranch() {
+    local remote
+
+    # Are we on a remote-tracking branch?
+    remote=${$(git rev-parse --verify ${hook_com[branch]}@{upstream} \
+        --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
+
+    # The first test will show a tracking branch whenever there is one. The
+    # second test, however, will only show the remote branch's name if it
+    # differs from the local one.
+    if [[ -n ${remote} ]] ; then
+    #if [[ -n ${remote} && ${remote#*/} != ${hook_com[branch]} ]] ; then
+        hook_com[branch]="${hook_com[branch]} [${remote}]"
+    fi
+}
+
 prompt_qoxra_git(){
     is_dirty(){
         test -n "$(git status --porcelain --ignore-submodules)"
@@ -96,6 +140,7 @@ prompt_qoxra_setup() {
     zstyle ':vcs_info:*' enable git svn hg
     zstyle ':vcs_info:*' check-for-changes true
     zstyle ':vcs_info:git*' formats "%{$fg[white]%}%s:%b %m%u%c %{${reset_color}%}"
+    zstyle ':vcs_info:git*+set-message:*' hooks git-st git-untracked
 }
 
 prompt_qoxra_setup "$@"
